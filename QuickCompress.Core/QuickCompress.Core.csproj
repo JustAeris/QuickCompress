@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Tools\Caesium\caesiumclt.exe" />
+      <Content Include="Tools\Caesium\caesiumclt.exe">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Tools\Caesium\output.png\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Tools\Caesium\output.png\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Tools\Caesium\output.png\**" />
+    </ItemGroup>
+
+</Project>
