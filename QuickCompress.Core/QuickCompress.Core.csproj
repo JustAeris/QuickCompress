@@ -22,4 +22,10 @@
       <EmbeddedResource Remove="Tools\Caesium\output.png\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="FFMpegCore" Version="4.8.0" />
+      <PackageReference Include="SharpCompress" Version="0.32.2" />
+      <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+    </ItemGroup>
+
 </Project>
