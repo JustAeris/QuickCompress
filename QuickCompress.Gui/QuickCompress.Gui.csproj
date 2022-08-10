@@ -6,8 +6,9 @@
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <IsPackable>false</IsPackable>
-        <Deterministic>true</Deterministic>
+        <Deterministic>false</Deterministic>
         <ApplicationIcon>Icons\QuickCompress-Icon.ico</ApplicationIcon>
+        <AssemblyVersion>1.0.0.*</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
