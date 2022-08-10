@@ -12,6 +12,14 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
       <None Remove="Tools\Caesium\output.png\**" />
+      <None Remove="Tools\FFmpeg\ffmpeg.exe" />
+      <Content Include="Tools\FFmpeg\ffmpeg.exe">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Tools\FFmpeg\ffprobe.exe" />
+      <Content Include="Tools\FFmpeg\ffprobe.exe">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -24,8 +32,8 @@
 
     <ItemGroup>
       <PackageReference Include="FFMpegCore" Version="4.8.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="SharpCompress" Version="0.32.2" />
-      <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
     </ItemGroup>
 
 </Project>

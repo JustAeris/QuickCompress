@@ -1,57 +1,77 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using QuickCompress.Core.Configuration;
+using QuickCompress.Core.ProgressWatcher;
 
 namespace QuickCompress.Core.VideoCompression;
 
 public partial class FFmpeg
 {
     /// <summary>
-    /// Starts FFmpeg process
+    /// Starts a given process with given arguments
     /// </summary>
+    /// <param name="processPath">Executable path</param>
     /// <param name="args">CLI arguments</param>
-    /// <param name="token">The cancellation token to pass to the process</param>
-    /// <returns>The exit code</returns>
-    private async Task<int> StartFFmpeg(string args, CancellationToken token = default)
+    /// <param name="onOutputDataReceived">Event handler to handle the <see cref="Process.OutputDataReceived"/> event</param>
+    /// <param name="onErrorDataReceived">Event handler to handle the <see cref="Process.ErrorDataReceived"/> event</param>
+    /// <param name="cancellationToken">Cancellation token to cancel if needed</param>
+    /// <returns>The process after execution</returns>
+    private async Task<Process> StartProcessAsync(string processPath, string args, DataReceivedEventHandler? onOutputDataReceived = null, DataReceivedEventHandler? onErrorDataReceived = null, CancellationToken cancellationToken = default)
     {
-        using var process = new Process
+        var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = Path.Combine(Directory.GetCurrentDirectory(), "Tools\\FFmpeg\\ffmpeg.exe"),
+                FileName = Path.Combine(Directory.GetCurrentDirectory(), processPath),
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
-                Arguments = args
-            }
-        };
-        process.ErrorDataReceived += FFmpegProcessOnOutputDataReceived;
-        process.Start();
-        process.BeginErrorReadLine();
-        await process.WaitForExitAsync(token);
-        return process.ExitCode;
-    }
-
-    /// <summary>
-    /// Starts FFprobe process
-    /// </summary>
-    /// <param name="args">CLI arguments</param>
-    /// <param name="token">The cancellation token to pass to the process</param>
-    /// <returns>The whole output</returns>
-    private async Task<string> StartFFprobe(string args, CancellationToken token = default)
-    {
-        using var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = Path.Combine(Directory.GetCurrentDirectory(), "Tools\\FFmpeg\\ffprobe.exe"),
-                UseShellExecute = false,
-                CreateNoWindow = true,
                 RedirectStandardOutput = true,
                 Arguments = args
             }
         };
+
+        if (onOutputDataReceived != null) process.OutputDataReceived += onOutputDataReceived;
+        if (onErrorDataReceived != null) process.ErrorDataReceived += onErrorDataReceived;
+
         process.Start();
-        await process.WaitForExitAsync(token);
-        return await process.StandardOutput.ReadToEndAsync();
+
+        if (onOutputDataReceived != null) process.BeginOutputReadLine();
+        if (onErrorDataReceived != null) process.BeginErrorReadLine();
+
+        await process.WaitForExitAsync(cancellationToken);
+
+        return process;
+    }
+
+    /// <summary>
+    /// Starts FFmpeg and returns the exit code and output
+    /// </summary>
+    /// <param name="args">CLI arguments</param>
+    /// <param name="cancellationToken">The cancellation token to pass to the process</param>
+    /// <returns>Exit code of FFprobe and full output</returns>
+    private async Task<(int ExitCode, string Output)> StartFFprobeAsync(string args, CancellationToken cancellationToken = default)
+    {
+        using var process = await StartProcessAsync(Path.Combine(Directory.GetCurrentDirectory(), Context.Options.VideoCompressionOptions.FFprobePath), args, null, null, cancellationToken);
+
+        var stdOut = await process.StandardOutput.ReadToEndAsync();
+        var exitCode = process.ExitCode;
+        return (exitCode, stdOut);
+    }
+
+    /// <summary>
+    /// Starts FFmpeg and returns the exit code and output
+    /// </summary>
+    /// <param name="args">CLI arguments</param>
+    /// <param name="watcher">The progress watcher to track the state of the current process</param>
+    /// <param name="cancellationToken">The cancellation token to pass to the process</param>
+    /// <typeparam name="T">The type of the watcher. It will be inferred automatically, no need to explicitly state it.</typeparam>
+    /// <returns>Exit code of FFmpeg and full output</returns>
+    private async Task<(int ExitCode, string Output)> StartFFmpegAsync<T>(string args, IProgressWatcher<T>? watcher = null, CancellationToken cancellationToken = default)
+    {
+        using var process = await StartProcessAsync(Path.Combine(Directory.GetCurrentDirectory(), Context.Options.VideoCompressionOptions.FFmpegPath), args,
+            watcher?.OnOutputReceived ?? null, watcher?.OnErrorReceived ?? null, cancellationToken);
+        return (process.ExitCode, watcher?.StandardLog.ToString())!;
     }
 
     /// <summary>
@@ -60,12 +80,18 @@ public partial class FFmpeg
     /// <param name="filePath">File to process</param>
     /// <param name="token">The cancellation token to pass to the process</param>
     /// <returns>The total number of frames, -1 if none</returns>
-    private async Task<int> GetTotalFrames(string filePath, CancellationToken token = default)
+    private async Task<(int ExitCode, int Frames, string FullOutput)> GetTotalFramesAsync(string filePath, CancellationToken token = default)
     {
-        var frames =
-            await StartFFprobe(
-                $"-v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 \"{filePath}\"", token);
-        return int.TryParse(frames, out var result) ? result : -1;
+        var ffProbeArgs = new StringBuilder()
+            .Append("-v error ")
+            .Append("-select_streams v:0 ")
+            .Append("-count_packets ")
+            .Append("-show_entries stream=nb_read_packets ")
+            .Append($"-of csv=p=0 \"{filePath}\"");
+
+        var result = await StartFFprobeAsync(ffProbeArgs.ToString(), token);
+        var framesCount = int.TryParse(result.Output, out var frames) ? frames : -1;
+        return (result.ExitCode, framesCount, result.Output);
     }
 
     /// <summary>
@@ -74,11 +100,16 @@ public partial class FFmpeg
     /// <param name="filePath">File to process</param>
     /// <param name="token">The cancellation token to pass to the process</param>
     /// <returns>The bitrate of the given video, -1 if none</returns>
-    private async Task<long> GetBitrate(string filePath, CancellationToken token = default)
+    private async Task<(int ExitCode, long Bitrate, string FullOutput)> GetBitrateAsync(string filePath, CancellationToken token = default)
     {
-        var bitrate =
-            await StartFFprobe(
-                $"-v error -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 \"{filePath}\"", token);
-        return long.TryParse(bitrate, out var result) ? result : -1;
+        var ffProbeArgs = new StringBuilder()
+            .Append("-v error ")
+            .Append("-select_streams v:0 ")
+            .Append("-show_entries stream=bit_rate ")
+            .Append($"-of default=noprint_wrappers=1:nokey=1 \"{filePath}\"");
+
+        var result = await StartFFprobeAsync(ffProbeArgs.ToString(), token);
+        var bitrate = long.TryParse(result.Output, out var bitrateValue) ? bitrateValue : -1;
+        return (result.ExitCode, bitrate, result.Output);
     }
 }
