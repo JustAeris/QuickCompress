@@ -1,12 +1,77 @@
-﻿<Window x:Class="QuickCompress.Gui.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:QuickCompress.Gui"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+﻿<Window
+    x:Class="QuickCompress.Gui.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:tabs="clr-namespace:QuickCompress.Gui.Tabs"
+    xmlns:ui="http://schemas.modernwpf.com/2019"
+    xmlns:videoTab="clr-namespace:QuickCompress.Gui.Tabs.VideoTab"
+    Title="QuickCompress"
+    Width="800"
+    Height="620"
+    ui:WindowHelper.UseModernWindowStyle="True"
+    TextElement.FontFamily="{StaticResource RobotoMono}"
+    mc:Ignorable="d">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo/>
+    </Window.TaskbarItemInfo>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <Label
+            Margin="15"
+            FontFamily="/Fonts/RobotoMono-Regular.ttf #Roboto Mono"
+            FontSize="30">
+            QuickCompress
+        </Label>
+
+        <TabControl Grid.Row="1" TabStripPlacement="Left">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <svgc:SvgViewbox Height="20" Source="{DynamicResource VideoIcon}"/>
+                        <Label Margin="5,0,0,0" FontFamily="{StaticResource RobotoMono}">
+                            Videos
+                        </Label>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <videoTab:VideosTab/>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <svgc:SvgViewbox Height="20" Source="{DynamicResource SettingsIcon}"/>
+                        <Label Margin="5,0,0,0" FontFamily="{StaticResource RobotoMono}">
+                            Settings
+                        </Label>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <tabs:SettingsTab/>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <svgc:SvgViewbox Height="20" Source="{DynamicResource InfoIcon}"/>
+                        <Label Margin="5,0,0,0" FontFamily="{StaticResource RobotoMono}">
+                            About
+                        </Label>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <tabs:AboutTab/>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

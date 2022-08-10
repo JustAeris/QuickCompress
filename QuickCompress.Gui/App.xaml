@@ -1,9 +1,71 @@
-﻿<Application x:Class="QuickCompress.Gui.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:QuickCompress.Gui"
-             StartupUri="MainWindow.xaml">
+﻿<Application
+    x:Class="QuickCompress.Gui.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:ui="http://schemas.modernwpf.com/2019"
+    StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemeResources>
+                    <ui:ThemeResources.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Light">
+                            <!--  ReSharper disable Xaml.ConstructorWarning  -->
+                            <system:Uri x:Key="AlertOctagonIcon">/Icons/Light/alert-octagon-black.svg</system:Uri>
+                            <system:Uri x:Key="AlertTriangleIcon">/Icons/Light/alert-triangle-black.svg</system:Uri>
+                            <system:Uri x:Key="CheckboxIcon">/Icons/Light/checkbox-black.svg</system:Uri>
+                            <system:Uri x:Key="CircleCheckIcon">/Icons/Light/circle-check-black.svg</system:Uri>
+                            <system:Uri x:Key="CircleXIcon">/Icons/Light/circle-x-black.svg</system:Uri>
+                            <system:Uri x:Key="FileExportIcon">/Icons/Light/file-export-black.svg</system:Uri>
+                            <system:Uri x:Key="FileMinusIcon">/Icons/Light/file-minus-black.svg</system:Uri>
+                            <system:Uri x:Key="FileSearchIcon">/Icons/Light/file-search-black.svg</system:Uri>
+                            <system:Uri x:Key="HelpIcon">/Icons/Light/help-black.svg</system:Uri>
+                            <system:Uri x:Key="InfoIcon">/Icons/Light/info-black.svg</system:Uri>
+                            <system:Uri x:Key="SettingsIcon">/Icons/Light/settings-black.svg</system:Uri>
+                            <system:Uri x:Key="SquareIcon">/Icons/Light/square-black.svg</system:Uri>
+                            <system:Uri x:Key="VideoIcon">/Icons/Light/video-black.svg</system:Uri>
+                            <!--  ReSharper restore Xaml.ConstructorWarning  -->
+
+                            <Brush x:Key="InvertedForegroundColor">
+                                Black
+                            </Brush>
+                            <Brush x:Key="BackgroundColor">
+                                White
+                            </Brush>
+                        </ResourceDictionary>
+                        <ResourceDictionary x:Key="Dark">
+                            <!--  ReSharper disable Xaml.ConstructorWarning  -->
+                            <system:Uri x:Key="AlertOctagonIcon">/Icons/Dark/alert-octagon-white.svg</system:Uri>
+                            <system:Uri x:Key="AlertTriangleIcon">/Icons/Dark/alert-triangle-white.svg</system:Uri>
+                            <system:Uri x:Key="CheckboxIcon">/Icons/Dark/checkbox-white.svg</system:Uri>
+                            <system:Uri x:Key="CircleCheckIcon">/Icons/Dark/circle-check-white.svg</system:Uri>
+                            <system:Uri x:Key="CircleXIcon">/Icons/Dark/circle-x-white.svg</system:Uri>
+                            <system:Uri x:Key="FileExportIcon">/Icons/Dark/file-export-white.svg</system:Uri>
+                            <system:Uri x:Key="FileMinusIcon">/Icons/Dark/file-minus-white.svg</system:Uri>
+                            <system:Uri x:Key="FileSearchIcon">/Icons/Dark/file-search-white.svg</system:Uri>
+                            <system:Uri x:Key="HelpIcon">/Icons/Dark/help-white.svg</system:Uri>
+                            <system:Uri x:Key="InfoIcon">/Icons/Dark/info-white.svg</system:Uri>
+                            <system:Uri x:Key="SettingsIcon">/Icons/Dark/settings-white.svg</system:Uri>
+                            <system:Uri x:Key="SquareIcon">/Icons/Dark/square-white.svg</system:Uri>
+                            <system:Uri x:Key="VideoIcon">/Icons/Dark/video-white.svg</system:Uri>
+                            <!--  ReSharper restore Xaml.ConstructorWarning  -->
+
+                            <Brush x:Key="InvertedForegroundColor">
+                                White
+                            </Brush>
+                            <Brush x:Key="BackgroundColor">
+                                Black
+                            </Brush>
+                        </ResourceDictionary>
+                    </ui:ThemeResources.ThemeDictionaries>
+                </ui:ThemeResources>
+                <ui:XamlControlsResources/>
+                <!--  Other merged dictionaries here  -->
+            </ResourceDictionary.MergedDictionaries>
+            <!--  Other app resources here  -->
+            <FontFamily x:Key="Roboto">pack://application:,,,/Fonts/#Roboto</FontFamily>
+            <FontFamily x:Key="RobotoMono">pack://application:,,,/Fonts/#Roboto Mono</FontFamily>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
