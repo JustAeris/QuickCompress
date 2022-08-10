@@ -4,6 +4,8 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\QuickCompress.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +22,9 @@
       <Content Include="Tools\FFmpeg\ffprobe.exe">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <None Include="..\QuickCompress.snk">
+        <Link>QuickCompress.snk</Link>
+      </None>
     </ItemGroup>
 
     <ItemGroup>

@@ -9,6 +9,8 @@
         <Deterministic>false</Deterministic>
         <ApplicationIcon>Icons\QuickCompress-Icon.ico</ApplicationIcon>
         <AssemblyVersion>1.0.0.*</AssemblyVersion>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\QuickCompress.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,6 +21,9 @@
 
     <ItemGroup>
       <None Remove="Fonts\JetBrainsMono.ttf" />
+      <None Include="..\QuickCompress.snk">
+        <Link>QuickCompress.snk</Link>
+      </None>
       <Resource Include="Fonts\JetBrainsMono.ttf" />
       <None Remove="Fonts\RobotoMono-Regular.ttf" />
       <Resource Include="Fonts\RobotoMono-Regular.ttf" />
