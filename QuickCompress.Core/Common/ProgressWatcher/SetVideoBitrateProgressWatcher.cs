@@ -2,12 +2,12 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace QuickCompress.Core.ProgressWatcher;
+namespace QuickCompress.Core.Common.ProgressWatcher;
 
 /// <summary>
 /// <see cref="IProgressWatcher{T}"/> to watch for progression when resizing a video file, includes the pass the program is currently on.
 /// </summary>
-internal class SetFileSizeProgressWatcher : IProgressWatcher<(double Progress, int Pass)>
+internal class SetVideoBitrateProgressWatcher : IProgressWatcher<(double Progress, int Pass)>
 {
     private int TotalFrames { get; }
     public StringBuilder StandardLog { get; }
@@ -16,7 +16,7 @@ internal class SetFileSizeProgressWatcher : IProgressWatcher<(double Progress, i
 
     private int Pass { get; }
 
-    internal SetFileSizeProgressWatcher(Action<(double Progress, int Pass)> onProgress, int totalFrames, int pass)
+    internal SetVideoBitrateProgressWatcher(Action<(double Progress, int Pass)> onProgress, int totalFrames, int pass)
     {
         _onProgress = onProgress;
         TotalFrames = totalFrames;

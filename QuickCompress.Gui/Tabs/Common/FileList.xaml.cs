@@ -9,6 +9,10 @@ namespace QuickCompress.Gui.Tabs.Common;
 
 public partial class FileList
 {
+    public string? Filter { get; set; }
+
+    public Environment.SpecialFolder InitialFolder { get; set; }
+
     public FileList()
     {
         InitializeComponent();
@@ -32,9 +36,9 @@ public partial class FileList
         {
             Multiselect = true,
             Title = "Choose files to compress",
-            Filter = "Video files (*.avi;*.mov;*.mp4;*.webm)|*.avi;*.mov;*.mp4;*.webm|All files (*.*)|*.*",
+            Filter = $"{(string.IsNullOrEmpty(Filter) ? "" : $"{Filter}|")}All files (*.*)|*.*",
             CheckFileExists = true,
-            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)
+            InitialDirectory = InitialFolder == 0 ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) : Environment.GetFolderPath(InitialFolder)
         };
 
         dialog.ShowDialog();

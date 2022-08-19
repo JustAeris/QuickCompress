@@ -1,6 +1,6 @@
-﻿using QuickCompress.Core.VideoCompression;
+﻿using QuickCompress.Core.Common;
 
-namespace QuickCompress.Gui.Models.VideoCompression;
+namespace QuickCompress.Gui.Models;
 
 
 // ReSharper disable once NotAccessedPositionalProperty.Local

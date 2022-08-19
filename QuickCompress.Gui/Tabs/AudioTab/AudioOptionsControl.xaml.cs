@@ -1,12 +1,12 @@
 ﻿using System.Windows;
-using QuickCompress.Core.VideoCompression;
-using QuickCompress.Gui.Models.VideoCompression;
+using QuickCompress.Core.Common;
+using QuickCompress.Gui.Models;
 
-namespace QuickCompress.Gui.Tabs.VideoTab;
+namespace QuickCompress.Gui.Tabs.AudioTab;
 
-public partial class CompressionOptionsControl
+public partial class AudioOptionsControl
 {
-    public CompressionOptionsControl()
+    public AudioOptionsControl()
     {
         InitializeComponent();
 
@@ -23,45 +23,65 @@ public partial class CompressionOptionsControl
             new SpeedPreset("Ultra Fast", FFmpegSpeed.UltraFast)
         };
         SpeedComboBox.SelectedIndex = 3;
+
+        BitratePresetsBox.ItemsSource = new[]
+        {
+            new BitratePreset(32),
+            new BitratePreset(64),
+            new BitratePreset(96),
+            new BitratePreset(128),
+            new BitratePreset(320),
+            new BitratePreset(1141),
+            new BitratePreset(-1)
+        };
+        BitratePresetsBox.SelectedIndex = 3;
+        BitrateSlider.ValueChanged += (_, _) => BitratePresetsBox.SelectedItem = new BitratePreset(-1);
+        BitratePresetsBox.DropDownClosed += (_, _) =>
+        {
+            if (BitratePresetsBox.SelectedItem is not BitratePreset bitratePreset) return;
+            BitrateSlider.Value = bitratePreset.Bitrate;
+            BitratePresetsBox.SelectedItem = bitratePreset;
+        };
     }
 
-    public Options GetCompressionOptions() => new(CrfCompressionRadioButton.IsChecked == true,
-        CrfSlider.Value, TargetFileSizeRadioButton.IsChecked == true,
-        PercentageReductionRadioButton.IsChecked == true,
+    public AudioOptions GetCompressionOptions() => new(BitrateRadioButton.IsChecked == true,
+        (int)BitrateSlider.Value, ResizeButton.IsChecked == true,
+        PercentageReductionButton.IsChecked == true,
         PercentageReductionSlider.Value,
-        FileSizeRadioButton.IsChecked == true,
+        FileSizeButton.IsChecked == true,
         FileSizeNumberBox.Value,
-        TwoPassesCheckBox.IsChecked == true,
         ((SpeedPreset)SpeedComboBox.SelectedItem).Speed);
 
 
 
     #region UI Automation
 
-    private void CrfCompressionRadioButton_OnClick(object sender, RoutedEventArgs e)
+    private void BitrateRadioButton_OnClick(object sender, RoutedEventArgs e)
     {
-        CrfSlider.IsEnabled = true;
-        TargetFileSizePanel.IsEnabled = false;
-        TargetFileSizeRadioButton.IsChecked = false;
+        BitrateSlider.IsEnabled = true;
+        BitratePresetsBox.IsEnabled = true;
+        ResizePanel.IsEnabled = false;
+        ResizeButton.IsChecked = false;
     }
 
     private void TargetFileSizeRadioButton_OnClick(object sender, RoutedEventArgs e)
     {
-        CrfSlider.IsEnabled = false;
-        TargetFileSizePanel.IsEnabled = true;
-        CrfCompressionRadioButton.IsChecked = false;
+        BitrateSlider.IsEnabled = false;
+        BitratePresetsBox.IsEnabled = false;
+        ResizePanel.IsEnabled = true;
+        BitrateRadioButton.IsChecked = false;
     }
 
     private void FileSizeRadioButton_OnClick(object sender, RoutedEventArgs e)
     {
-        PercentageReductionRadioButton.IsChecked = false;
+        PercentageReductionButton.IsChecked = false;
         PercentageReductionSlider.IsEnabled = false;
         FileSizeNumberBox.IsEnabled = true;
     }
 
     private void PercentageReductionRadioButton_OnClick(object sender, RoutedEventArgs e)
     {
-        FileSizeRadioButton.IsChecked = false;
+        FileSizeButton.IsChecked = false;
         PercentageReductionSlider.IsEnabled = true;
         FileSizeNumberBox.IsEnabled = false;
     }
@@ -76,20 +96,9 @@ public partial class CompressionOptionsControl
         MessageBox.Show("Help", "The program will try to reach the target file as close as it can but it may (and certainly will) be a few Mb off.\n" +
                                 "Note: the program will not compress files smaller than the target size.", MessageBox.MessageBoxIcons.Info);
 
-    private void TwoPassesHelp_OnClick(object sender, RoutedEventArgs e) =>
-        MessageBox.Show("Help", "FFmpeg can do two passes when reducing the size of a file. " +
-                                "Two passes may give better results, but take longer to compress.",
-            MessageBox.MessageBoxIcons.Info);
-
     private void SpeedHelp_OnClick(object sender, RoutedEventArgs e) =>
         MessageBox.Show("Help", "Select the speed preset that best fits your needs.\n" +
                                 "Note that the slower the speed is, the better the result will be.",
             MessageBox.MessageBoxIcons.Info);
-
-    private void CRFHelp_OnClick(object sender, RoutedEventArgs e) =>
-        MessageBox.Show("Help", "CRF is a quality parameter that determines the amount of compression.\n\n" +
-                                "Range is logarithmic 0-51. 0 is lossless (big files), ~18 is roughly visually lossless, 23 is default, and 51 is worst quality.",
-            MessageBox.MessageBoxIcons.Info);
-
     #endregion
 }

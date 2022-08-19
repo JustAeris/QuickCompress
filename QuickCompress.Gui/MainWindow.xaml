@@ -8,6 +8,7 @@
     xmlns:tabs="clr-namespace:QuickCompress.Gui.Tabs"
     xmlns:ui="http://schemas.modernwpf.com/2019"
     xmlns:videoTab="clr-namespace:QuickCompress.Gui.Tabs.VideoTab"
+    xmlns:audioTab="clr-namespace:QuickCompress.Gui.Tabs.AudioTab"
     Title="QuickCompress"
     Width="800"
     Height="620"
@@ -37,7 +38,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <svgc:SvgViewbox Height="20" Source="{DynamicResource VideoIcon}"/>
+                        <svgc:SvgViewbox Height="19" Source="{DynamicResource VideoIcon}"/>
                         <Label Margin="5,0,0,0" FontFamily="{StaticResource RobotoMono}">
                             Videos
                         </Label>
@@ -45,6 +46,19 @@
                 </TabItem.Header>
 
                 <videoTab:VideosTab/>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <svgc:SvgViewbox Height="22" Source="{DynamicResource FileMusicIcon}"/>
+                        <Label Margin="5,0,0,0" FontFamily="{StaticResource RobotoMono}">
+                            Music
+                        </Label>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <audioTab:AudioTab/>
             </TabItem>
 
             <TabItem>

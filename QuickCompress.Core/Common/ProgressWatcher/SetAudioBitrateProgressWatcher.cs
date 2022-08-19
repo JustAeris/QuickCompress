@@ -2,21 +2,18 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace QuickCompress.Core.ProgressWatcher;
+namespace QuickCompress.Core.Common.ProgressWatcher;
 
-/// <summary>
-/// <see cref="IProgressWatcher{T}"/> to watch for progression on video compression
-/// </summary>
-internal class CompressionProgressWatcher : IProgressWatcher<double>
+public class SetAudioBitrateProgressWatcher : IProgressWatcher<double>
 {
-    private int TotalFrames { get; }
+    private double TargetSize { get; }
     public StringBuilder StandardLog { get; }
     public StringBuilder ErrorLog { get; } = new();
     private readonly Action<double> _onProgress;
 
-    public CompressionProgressWatcher(Action<double> onProgress, int totalFrames)
+    public SetAudioBitrateProgressWatcher(Action<double> onProgress, double targetSize)
     {
-        TotalFrames = totalFrames;
+        TargetSize = targetSize;
         _onProgress = onProgress;
         StandardLog = new StringBuilder();
     }
@@ -29,8 +26,8 @@ internal class CompressionProgressWatcher : IProgressWatcher<double>
     {
         if (e.Data == null) return;
         StandardLog.AppendLine(e.Data);
-        var match = Regex.Match(e.Data, @"frame=\s*([0-9]*)");
-        var progress = match.Success ? double.Parse(match.Groups[1].Value) * 100 / TotalFrames : 0;
+        var match = Regex.Match(e.Data, @"size=\s*([0-9]*)");
+        var progress = Math.Min(match.Success ? double.Parse(match.Groups[1].Value) * 1000 / TargetSize : 0, 1D) ;
         ((IProgressWatcher<double>)this).OnProgress.Invoke(progress);
     };
 }

@@ -1,0 +1,113 @@
+﻿<UserControl
+    x:Class="QuickCompress.Gui.Tabs.AudioTab.AudioOptionsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="http://schemas.modernwpf.com/2019"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
+    <GroupBox Header="Compression method">
+        <StackPanel>
+            <!--  Bitrate options  -->
+            <StackPanel Orientation="Vertical">
+                <RadioButton
+                    x:Name="BitrateRadioButton"
+                    VerticalAlignment="Center"
+                    Click="BitrateRadioButton_OnClick"
+                    IsChecked="True">
+                    Bitrate Compression
+                </RadioButton>
+                <Slider
+                    x:Name="BitrateSlider"
+                    Margin="20,0,0,0"
+                    AutoToolTipPlacement="TopLeft"
+                    IsSnapToTickEnabled="True"
+                    LargeChange="2"
+                    Maximum="1141"
+                    Minimum="1"
+                    SmallChange="1"
+                    Value="128"/>
+                <ComboBox
+                    x:Name="BitratePresetsBox"
+                    Margin="20,0,0,0"
+                    HorizontalAlignment="Stretch"
+                    DisplayMemberPath="Name"/>
+            </StackPanel>
+
+            <!--  Resize options  -->
+            <StackPanel Margin="0,15,0,0" Orientation="Vertical">
+                <RadioButton x:Name="ResizeButton" Click="TargetFileSizeRadioButton_OnClick">Target file size</RadioButton>
+                <StackPanel
+                    x:Name="ResizePanel"
+                    Margin="20,0,0,0"
+                    IsEnabled="False">
+                    <RadioButton
+                        x:Name="PercentageReductionButton"
+                        Click="PercentageReductionRadioButton_OnClick"
+                        IsChecked="True">
+                        Reduction in percentage
+                    </RadioButton>
+                    <Slider
+                        x:Name="PercentageReductionSlider"
+                        AutoToolTipPlacement="TopLeft"
+                        LargeChange="5"
+                        Maximum="99"
+                        Minimum="1"
+                        SmallChange="1"
+                        TickFrequency="10"
+                        TickPlacement="BottomRight"
+                        Value="40"/>
+
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton
+                            x:Name="FileSizeButton"
+                            VerticalAlignment="Center"
+                            Click="FileSizeRadioButton_OnClick">
+                            Absolute file size
+                        </RadioButton>
+                        <Button
+                            Margin="5,0"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            Click="AbsoluteSizeHelp_OnClick">
+                            <svgc:SvgViewbox
+                                MaxHeight="15"
+                                Margin="-6,-5"
+                                Source="{DynamicResource HelpIcon}"/>
+                        </Button>
+                    </StackPanel>
+                    <controls:NumberBox
+                        x:Name="FileSizeNumberBox"
+                        IsEnabled="False"
+                        LargeChange="2"
+                        Minimum="1"
+                        PlaceholderText="Size in MB"
+                        SmallChange="1"
+                        SpinButtonPlacementMode="Compact"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!--  Speed selection  -->
+            <StackPanel Margin="0,15,0,0" Orientation="Horizontal">
+                <Label VerticalAlignment="Center">Select FFmpeg speed</Label>
+                <Button
+                    Margin="5,0"
+                    VerticalAlignment="Center"
+                    Background="Transparent"
+                    Click="SpeedHelp_OnClick">
+                    <svgc:SvgViewbox
+                        MaxHeight="15"
+                        Margin="-6,-5"
+                        Source="{DynamicResource HelpIcon}"/>
+                </Button>
+            </StackPanel>
+            <ComboBox
+                x:Name="SpeedComboBox"
+                HorizontalAlignment="Stretch"
+                DisplayMemberPath="Name"/>
+        </StackPanel>
+    </GroupBox>
+</UserControl>

@@ -19,6 +19,7 @@
                             <system:Uri x:Key="CircleXIcon">/Icons/Light/circle-x-black.svg</system:Uri>
                             <system:Uri x:Key="FileExportIcon">/Icons/Light/file-export-black.svg</system:Uri>
                             <system:Uri x:Key="FileMinusIcon">/Icons/Light/file-minus-black.svg</system:Uri>
+                            <system:Uri x:Key="FileMusicIcon">/Icons/Light/file-music-black.svg</system:Uri>
                             <system:Uri x:Key="FileSearchIcon">/Icons/Light/file-search-black.svg</system:Uri>
                             <system:Uri x:Key="HelpIcon">/Icons/Light/help-black.svg</system:Uri>
                             <system:Uri x:Key="InfoIcon">/Icons/Light/info-black.svg</system:Uri>
@@ -43,6 +44,7 @@
                             <system:Uri x:Key="CircleXIcon">/Icons/Dark/circle-x-white.svg</system:Uri>
                             <system:Uri x:Key="FileExportIcon">/Icons/Dark/file-export-white.svg</system:Uri>
                             <system:Uri x:Key="FileMinusIcon">/Icons/Dark/file-minus-white.svg</system:Uri>
+                            <system:Uri x:Key="FileMusicIcon">/Icons/Dark/file-music-white.svg</system:Uri>
                             <system:Uri x:Key="FileSearchIcon">/Icons/Dark/file-search-white.svg</system:Uri>
                             <system:Uri x:Key="HelpIcon">/Icons/Dark/help-white.svg</system:Uri>
                             <system:Uri x:Key="InfoIcon">/Icons/Dark/info-white.svg</system:Uri>

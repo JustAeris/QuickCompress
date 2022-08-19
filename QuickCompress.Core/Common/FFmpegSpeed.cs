@@ -1,4 +1,4 @@
-﻿namespace QuickCompress.Core.VideoCompression;
+﻿namespace QuickCompress.Core.Common;
 
 public enum FFmpegSpeed
 {

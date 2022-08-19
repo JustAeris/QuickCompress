@@ -1,14 +1,13 @@
 ﻿<UserControl
-    x:Class="QuickCompress.Gui.Tabs.VideoTab.VideosTab"
+    x:Class="QuickCompress.Gui.Tabs.AudioTab.AudioTab"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:common="clr-namespace:QuickCompress.Gui.Tabs.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:QuickCompress.Gui.Tabs.AudioTab"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:ui="http://schemas.modernwpf.com/2019"
-    xmlns:videoTab="clr-namespace:QuickCompress.Gui.Tabs.VideoTab"
-    x:Name="This"
     d:DesignHeight="300"
     d:DesignWidth="300"
     TextElement.FontFamily="{StaticResource Roboto}"
@@ -34,11 +33,11 @@
             x:Name="FileList"
             Grid.Row="1"
             Grid.Column="1"
-            Filter="Video files (*.avi;*.mov;*.mp4;*.webm)|*.avi;*.mov;*.mp4;*.webm"
-            InitialFolder="MyVideos"/>
+            Filter="Audio files (*.mp3;*.wav;*.wma;*.aac;*.flac;*.ogg;*.ape;*.alac;*.m4a)|*.mp3;*.wav;*.wma;*.aac;*.flac;*.ogg;*.ape;*.alac;*.m4a"
+            InitialFolder="MyMusic"/>
 
         <!--  Compression options  -->
-        <videoTab:VideoOptionsControl
+        <local:AudioOptionsControl
             x:Name="OptionsControl"
             Grid.Row="1"
             Grid.Column="3"

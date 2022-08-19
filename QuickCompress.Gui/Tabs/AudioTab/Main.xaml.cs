@@ -8,18 +8,17 @@ using System.Windows.Media;
 using System.Windows.Shell;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using ModernWpf;
+using QuickCompress.Core.AudioCompression;
 using QuickCompress.Core.Configuration;
-using QuickCompress.Core.VideoCompression;
 
-namespace QuickCompress.Gui.Tabs.VideoTab;
+namespace QuickCompress.Gui.Tabs.AudioTab;
 
-public partial class VideosTab
+public partial class AudioTab
 {
-
     private static CancellationTokenSource _cancellationTokenSource = new();
     private CancellationToken _cancellationToken = _cancellationTokenSource.Token;
 
-    public VideosTab()
+    public AudioTab()
     {
         InitializeComponent();
 
@@ -27,17 +26,15 @@ public partial class VideosTab
         ActualAccentColorChanged(null, null);
 
         // Check if there was any files left last time the program closed
-        if (!Context.Options.QueuedVideos.Any()) return;
+        if (!Context.Options.QueuedAudios.Any()) return;
 
         var dialog = MessageBox.Show("Add remaining files",
-            $"The program was still compressing videos the last time it was closed, do you want to add the {Context.Options.QueuedVideos.Count} remaining files to the list?",
+            $"The program was still compressing audios files the last time it was closed, do you want to add the {Context.Options.QueuedAudios.Count} remaining files to the list?",
             MessageBox.MessageBoxIcons.Info, MessageBox.MessageBoxButtons.YesNo);
         if (dialog == MessageBox.MessageBoxResult.Yes)
-            FileList.SetFiles(Context.Options.QueuedVideosInfo);
-        Context.Options.QueuedVideos.Clear();
+            FileList.SetFiles(Context.Options.QueuedAudiosInfo);
+        Context.Options.QueuedAudios.Clear();
     }
-
-
 
     #region UI Automation
 
@@ -61,8 +58,6 @@ public partial class VideosTab
 
     #endregion
 
-
-
     private async void CompressButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Check if there are files to compress
@@ -79,7 +74,7 @@ public partial class VideosTab
         {
             IsFolderPicker = true,
             Title = "Choose a folder to save the compressed files",
-            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic),
             EnsureValidNames = true,
         };
         var result = folderDialog.ShowDialog();
@@ -138,27 +133,27 @@ public partial class VideosTab
         OverallProgressBar.Value = 0;
         OverallProgressBar.Maximum = filesToProcess.Count;
         LockGui(true);
-        foreach (var info in filesToProcess) Context.Options.QueuedVideos.Add(files.FirstOrDefault(f => f.Name == info.Name.Replace("COMPRESSED_", ""))?.FullName ?? string.Empty);
+        foreach (var info in filesToProcess) Context.Options.QueuedAudios.Add(files.FirstOrDefault(f => f.Name == info.Name.Replace("COMPRESSED_", ""))?.FullName ?? string.Empty);
 
         using var ffmpeg = new FFmpeg();
         var parent = Window.GetWindow(this);
-        var (isCRF, crf, isResizing, isPercentage, percentage, _, absoluteSize, twoPasses, speed) = OptionsControl.GetCompressionOptions();
+        var (isSetBitrate, bitrate, isResizing, isPercentage, percentage, _, absoluteSize, speed) = OptionsControl.GetCompressionOptions();
         var i = 0;
         foreach (var file in filesToProcess)
         {
             try
             {
-                if (isCRF)
+                if (isSetBitrate)
                 {
                     var j = i;
 
                     await Task.Run(async () =>
                     {
-                        await ffmpeg.CompressVideoAsync(new FileInfo(file.FullName.Replace("COMPRESSED_", "")), Path.Combine(outputFolder.FullName, file.Name),
-                            (int)crf, speed, d => Dispatcher.Invoke(() =>
+                        await ffmpeg.SetAudioBitrateAsync(new FileInfo(file.FullName.Replace("COMPRESSED_", "")), Path.Combine(outputFolder.FullName, file.Name),
+                            bitrate * 1000, speed, d => Dispatcher.Invoke(() =>
                             {
-                                OverallProgressBar.Value = j + d / 100;
-                                parent.TaskbarItemInfo.ProgressValue = (j + d / 100) / OverallProgressBar.Maximum;
+                                OverallProgressBar.Value = j + d;
+                                parent.TaskbarItemInfo.ProgressValue = (j + d) / OverallProgressBar.Maximum;
                             }),
                             _cancellationToken);
                     }, _cancellationToken);
@@ -177,16 +172,12 @@ public partial class VideosTab
 
                     await Task.Run(async () =>
                     {
-                        await ffmpeg.SetVideoBitrateAsync(new FileInfo(file.FullName.Replace("COMPRESSED_", "")), Path.Combine(outputFolder.FullName, file.Name),
-                            targetSize, speed, twoPasses, tuple =>
+                        await ffmpeg.ResizeAudioFile(file, Path.Combine(outputFolder.FullName, file.Name),
+                            targetSize, speed, d => Dispatcher.Invoke(() =>
                             {
-                                var (progress, pass) = tuple;
-                                Dispatcher.Invoke(() =>
-                                {
-                                    OverallProgressBar.Value = progress / (pass == 2 ? 200 : 100) + j + (pass == 2 ? .5 : 0);
-                                    parent.TaskbarItemInfo.ProgressValue = (progress / (pass == 2 ? 200 : 100) + j + (pass == 2 ? .5 : 0)) / OverallProgressBar.Maximum;
-                                });
-                            }, _cancellationToken);
+                                OverallProgressBar.Value = j + d;
+                                parent.TaskbarItemInfo.ProgressValue = (j + d) / OverallProgressBar.Maximum;
+                            }), _cancellationToken);
                     }, _cancellationToken);
                 }
 
@@ -194,7 +185,7 @@ public partial class VideosTab
             catch (OperationCanceledException)
             {
                 MessageBox.Show("Operation cancelled", "Compression stopped.", MessageBox.MessageBoxIcons.Info);
-                Context.Options.QueuedVideos.Clear();
+                Context.Options.QueuedAudios.Clear();
                 LockGui(false);
                 return;
             }
@@ -203,14 +194,15 @@ public partial class VideosTab
                 MessageBox.Show("Oops",
                     $"Error while compressing {file.Name}: {exception.Message.Replace("\r\n", " ")}",
                     MessageBox.MessageBoxIcons.Error, exception: exception);
+                continue;
             }
             finally
             {
                 i++;
             }
 
-            Context.Options.QueuedVideos.Remove(file.FullName);
-            FileList.SetFiles(Context.Options.QueuedVideosInfo);
+            Context.Options.QueuedAudios.Remove(file.FullName);
+            FileList.SetFiles(Context.Options.QueuedAudiosInfo);
         }
 
         await Task.Delay(500, _cancellationToken);
@@ -230,9 +222,6 @@ public partial class VideosTab
         LockGui(false);
     }
 
-    /// <summary>
-    /// Lock the GUI during compression
-    /// </summary>
     private void LockGui(bool locked)
     {
         OptionsControl.IsEnabled = !locked;
