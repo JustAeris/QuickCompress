@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace QuickCompress.Core.ProgressWatcher;
+namespace QuickCompress.Core.Common.ProgressWatcher;
 
 /// <summary>
 /// <see cref="IProgressWatcher{T}"/> to watch for progression on video compression

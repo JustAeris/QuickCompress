@@ -1,17 +1,18 @@
 ﻿using System.Text;
+using QuickCompress.Core.Common.ProgressWatcher;
+using QuickCompress.Core.Common;
 using QuickCompress.Core.Configuration;
-using QuickCompress.Core.ProgressWatcher;
 
 namespace QuickCompress.Core.VideoCompression;
 
-public sealed partial class FFmpeg : IDisposable
+public sealed class FFmpeg : IDisposable
 {
     private readonly DirectoryInfo _tempDirectory;
 
     public FFmpeg()
     {
         var cd = Directory.GetCurrentDirectory();
-        var path = Path.Combine(cd, Context.Options.VideoCompressionOptions.TempPath);
+        var path = Path.Combine(cd, Context.Options.TempPath);
         _tempDirectory = new DirectoryInfo(path);
         _tempDirectory.Create();
     }
@@ -35,7 +36,7 @@ public sealed partial class FFmpeg : IDisposable
             throw new ArgumentOutOfRangeException(nameof(crf), "CRF must be between 0 and 51");
 
         // Get the number of frames, will be used to give a percentage of completion in the ProgressChanged event
-        var totalFrames = await GetTotalFramesAsync(inputFile.FullName, token);
+        var totalFrames = await FFmpegUtils.GetTotalFramesAsync(inputFile.FullName, token);
 
         if(totalFrames.Frames < 0 || totalFrames.ExitCode != 0)
             throw new Exception(
@@ -54,7 +55,7 @@ public sealed partial class FFmpeg : IDisposable
             .Append("-vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" ")
             .Append($"-y \"{Path.Combine(_tempDirectory.FullName, new FileInfo(outputFile).Name)}\"");
 
-        var result = await StartFFmpegAsync(ffMpegArgs.ToString(), watcher, token);
+        var result = await FFmpegUtils.StartFFmpegAsync(ffMpegArgs.ToString(), watcher, token);
 
         if (result.ExitCode != 0)
             throw new Exception("FFmpeg exited with error code " + result.ExitCode + "\n" + result.Output);
@@ -75,7 +76,7 @@ public sealed partial class FFmpeg : IDisposable
     /// <exception cref="ArgumentOutOfRangeException">Target size is either greater than input file size or lower than 0</exception>
     /// <exception cref="FileNotFoundException">File could not be found</exception>
     /// <exception cref="InvalidOperationException">Could not get the video duration</exception>
-    public async Task SetVideoFileSizeAsync(FileInfo inputFile, string outputFile, int targetSize, FFmpegSpeed preset = FFmpegSpeed.Medium, bool twoPasses = true, Action<(double Progress, int Pass)>? onProgress = null, CancellationToken token = default)
+    public async Task SetVideoBitrateAsync(FileInfo inputFile, string outputFile, int targetSize, FFmpegSpeed preset = FFmpegSpeed.Medium, bool twoPasses = true, Action<(double Progress, int Pass)>? onProgress = null, CancellationToken token = default)
     {
         // Perform arguments checks
         if (!File.Exists(inputFile.FullName))
@@ -89,7 +90,7 @@ public sealed partial class FFmpeg : IDisposable
 
         // Calculate the bitrate to use
         var coefficient = (double)targetSize / inputFile.Length;
-        var bitrate = await GetBitrateAsync(inputFile.FullName, token);
+        var bitrate = await FFmpegUtils.GetBitrateAsync(inputFile.FullName, FFmpegUtils.BitrateType.Video, token);
 
         if (bitrate.Bitrate < 0 || bitrate.ExitCode != 0)
             throw new Exception(
@@ -98,13 +99,13 @@ public sealed partial class FFmpeg : IDisposable
         var newBitrate = (int)(bitrate.Bitrate * coefficient);
 
         // Get the number of frames, will be used to give a percentage of completion in the ProgressChanged event
-        var totalFrames = await GetTotalFramesAsync(inputFile.FullName, token);
+        var totalFrames = await FFmpegUtils.GetTotalFramesAsync(inputFile.FullName, token);
 
         if(totalFrames.Frames < 0 || totalFrames.ExitCode != 0)
             throw new Exception(
                 $"FFprobe could not parse the number of frames and exited with error code {totalFrames.ExitCode}\n{totalFrames.FullOutput}");
 
-        var watcher = new SetFileSizeProgressWatcher(onProgress ?? new Action<(double Progress, int Pass)>(_ => { }), totalFrames.Frames, 1);
+        var watcher = new SetVideoBitrateProgressWatcher(onProgress ?? new Action<(double Progress, int Pass)>(_ => { }), totalFrames.Frames, 1);
 
         var ffmpegArgs = new StringBuilder();
         ffmpegArgs.Append($"-y -i \"{inputFile.FullName}\" ")
@@ -115,7 +116,7 @@ public sealed partial class FFmpeg : IDisposable
         ffmpegArgs.Append($"-b:v {newBitrate} ")
             .Append($"-an \"{Path.Combine(_tempDirectory.FullName, new FileInfo(outputFile).Name)}\"");
 
-        var result = await StartFFmpegAsync(ffmpegArgs.ToString(), watcher, token);
+        var result = await FFmpegUtils.StartFFmpegAsync(ffmpegArgs.ToString(), watcher, token);
 
         // Throw an exception if there was an error
         if (result.ExitCode != 0)
@@ -123,7 +124,7 @@ public sealed partial class FFmpeg : IDisposable
 
         if (twoPasses)
         {
-            watcher = new SetFileSizeProgressWatcher(onProgress ?? new Action<(double Progress, int Pass)>(_ => { }), totalFrames.Frames, 2);
+            watcher = new SetVideoBitrateProgressWatcher(onProgress ?? new Action<(double Progress, int Pass)>(_ => { }), totalFrames.Frames, 2);
 
             ffmpegArgs.Clear();
             ffmpegArgs.Append($"-y -i \"{inputFile.FullName}\" ")
@@ -135,7 +136,7 @@ public sealed partial class FFmpeg : IDisposable
                 .Append("-b:a 128k ")
                 .Append($"\"{Path.Combine(_tempDirectory.FullName, "2" + new FileInfo(outputFile).Name)}\"");
 
-            result = await StartFFmpegAsync(ffmpegArgs.ToString(), watcher, token);
+            result = await FFmpegUtils.StartFFmpegAsync(ffmpegArgs.ToString(), watcher, token);
 
             if (result.ExitCode != 0)
                 throw new Exception("FFmpeg exited with error code " + result.ExitCode + "\n" + result.Output);

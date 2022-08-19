@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
 
-namespace QuickCompress.Core.ProgressWatcher;
+namespace QuickCompress.Core.Common.ProgressWatcher;
 
 /// <summary>
 /// Base interface of a progress watcher
