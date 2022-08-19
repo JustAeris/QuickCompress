@@ -1,12 +1,12 @@
 ﻿using System.Windows;
-using QuickCompress.Core.VideoCompression;
-using QuickCompress.Gui.Models.VideoCompression;
+using QuickCompress.Core.Common;
+using QuickCompress.Gui.Models;
 
 namespace QuickCompress.Gui.Tabs.VideoTab;
 
-public partial class CompressionOptionsControl
+public partial class VideoOptionsControl
 {
-    public CompressionOptionsControl()
+    public VideoOptionsControl()
     {
         InitializeComponent();
 
@@ -25,7 +25,7 @@ public partial class CompressionOptionsControl
         SpeedComboBox.SelectedIndex = 3;
     }
 
-    public Options GetCompressionOptions() => new(CrfCompressionRadioButton.IsChecked == true,
+    public VideoOptions GetCompressionOptions() => new(CrfCompressionRadioButton.IsChecked == true,
         CrfSlider.Value, TargetFileSizeRadioButton.IsChecked == true,
         PercentageReductionRadioButton.IsChecked == true,
         PercentageReductionSlider.Value,

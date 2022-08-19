@@ -33,10 +33,12 @@
         <common:FileList
             x:Name="FileList"
             Grid.Row="1"
-            Grid.Column="1"/>
+            Grid.Column="1"
+            Filter="Video files (*.avi;*.mov;*.mp4;*.webm)|*.avi;*.mov;*.mp4;*.webm"
+            InitialFolder="MyVideos"/>
 
         <!--  Compression options  -->
-        <videoTab:CompressionOptionsControl
+        <videoTab:VideoOptionsControl
             x:Name="OptionsControl"
             Grid.Row="1"
             Grid.Column="3"

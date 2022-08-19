@@ -27,21 +27,19 @@ public partial class VideosTab
         ActualAccentColorChanged(null, null);
 
         // Check if there was any files left last time the program closed
-        if (!Context.Options.VideoCompressionOptions.QueuedFiles.Any()) return;
+        if (!Context.Options.QueuedVideos.Any()) return;
 
         var dialog = MessageBox.Show("Add remaining files",
-            $"The program was still compressing videos the las time it was closed, do you want to add the {Context.Options.VideoCompressionOptions.QueuedFiles.Count} remaining files to the list?",
+            $"The program was still compressing videos the last time it was closed, do you want to add the {Context.Options.QueuedVideos.Count} remaining files to the list?",
             MessageBox.MessageBoxIcons.Info, MessageBox.MessageBoxButtons.YesNo);
         if (dialog == MessageBox.MessageBoxResult.Yes)
-            FileList.SetFiles(Context.Options.VideoCompressionOptions.QueuedFilesInfo);
-        Context.Options.VideoCompressionOptions.QueuedFiles.Clear();
+            FileList.SetFiles(Context.Options.QueuedVideosInfo);
+        Context.Options.QueuedVideos.Clear();
     }
 
 
 
     #region UI Automation
-
-
 
     /// <summary>
     /// Custom method to highlight the compress button with the current accent color.
@@ -140,7 +138,7 @@ public partial class VideosTab
         OverallProgressBar.Value = 0;
         OverallProgressBar.Maximum = filesToProcess.Count;
         LockGui(true);
-        foreach (var info in filesToProcess) Context.Options.VideoCompressionOptions.QueuedFiles.Add(files.First(f => f.Name == info.Name).FullName);
+        foreach (var info in filesToProcess) Context.Options.QueuedVideos.Add(files.FirstOrDefault(f => f.Name == info.Name.Replace("COMPRESSED_", ""))?.FullName ?? string.Empty);
 
         using var ffmpeg = new FFmpeg();
         var parent = Window.GetWindow(this);
@@ -156,7 +154,7 @@ public partial class VideosTab
 
                     await Task.Run(async () =>
                     {
-                        await ffmpeg.CompressVideoAsync(file, Path.Combine(outputFolder.FullName, file.Name),
+                        await ffmpeg.CompressVideoAsync(new FileInfo(file.FullName.Replace("COMPRESSED_", "")), Path.Combine(outputFolder.FullName, file.Name),
                             (int)crf, speed, d => Dispatcher.Invoke(() =>
                             {
                                 OverallProgressBar.Value = j + d / 100;
@@ -179,7 +177,7 @@ public partial class VideosTab
 
                     await Task.Run(async () =>
                     {
-                        await ffmpeg.SetVideoFileSizeAsync(file, Path.Combine(outputFolder.FullName, file.Name),
+                        await ffmpeg.SetVideoBitrateAsync(new FileInfo(file.FullName.Replace("COMPRESSED_", "")), Path.Combine(outputFolder.FullName, file.Name),
                             targetSize, speed, twoPasses, tuple =>
                             {
                                 var (progress, pass) = tuple;
@@ -196,7 +194,7 @@ public partial class VideosTab
             catch (OperationCanceledException)
             {
                 MessageBox.Show("Operation cancelled", "Compression stopped.", MessageBox.MessageBoxIcons.Info);
-                Context.Options.VideoCompressionOptions.QueuedFiles.Clear();
+                Context.Options.QueuedVideos.Clear();
                 LockGui(false);
                 return;
             }
@@ -211,8 +209,8 @@ public partial class VideosTab
                 i++;
             }
 
-            Context.Options.VideoCompressionOptions.QueuedFiles.Remove(file.FullName);
-            FileList.SetFiles(Context.Options.VideoCompressionOptions.QueuedFilesInfo);
+            Context.Options.QueuedVideos.Remove(file.FullName);
+            FileList.SetFiles(Context.Options.QueuedVideosInfo);
         }
 
         await Task.Delay(500, _cancellationToken);
