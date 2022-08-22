@@ -114,7 +114,7 @@ public sealed class FFmpeg : IDisposable
         if (Enum.GetName(preset) != null)
             ffmpegArgs.Append($"-preset {Enum.GetName(preset)?.ToLower()} ");
         ffmpegArgs.Append($"-b:v {newBitrate} ")
-            .Append($"-an \"{Path.Combine(_tempDirectory.FullName, new FileInfo(outputFile).Name)}\"");
+            .Append($"\"{Path.Combine(_tempDirectory.FullName, new FileInfo(outputFile).Name)}\"");
 
         var result = await FFmpegUtils.StartFFmpegAsync(ffmpegArgs.ToString(), watcher, token);
 
